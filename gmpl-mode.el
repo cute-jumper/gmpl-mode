@@ -27,22 +27,73 @@
 (defvar gmpl-mode-hook nil)
 
 (defconst gmpl-font-lock-keywords
-  (list (cons (concat "\\_<\\("
-                      (mapconcat 'identity
-                                 '("and" "else" "mod" "union"
-                                   "by" "if" "not" "within"
-                                   "cross" "in" "or"
-                                   "diff" "inter" "symdiff"
-                                   "div" "less" "then")
-                                 "\\|")
-                      "\\)\\_>")
-              font-lock-keyword-face)))
+  (list
+   ;; Reserved keywords
+   (cons (concat "\\_<\\("
+                 (mapconcat 'identity
+                            '("and" "else" "mod" "union"
+                              "by" "if" "not" "within"
+                              "cross" "in" "or"
+                              "diff" "inter" "symdiff"
+                              "div" "less" "then")
+                            "\\|")
+                 "\\)\\_>")
+         font-lock-keyword-face)
+   ;; Keywords in statement
+   (cons (concat "\\_<\\("
+                 (mapconcat 'identity
+                            '("maximize" "minimize"
+                              "dimen" "default" "integer" "binary" "symbolic"
+                              "for" "check" "table" "IN" "OUT")
+                            "\\|")
+                 "\\)\\_>")
+         '(1 font-lock-keyword-face))
+   ;; One keyword per line
+   (cons "^[ \t]*\\(data\\|end\\|solve\\)[ \t]*;"
+         '(1 font-lock-keyword-face))
+   ;; Subject to, not a word
+   (cons "^[ \t]*\\(s\.t\.\\|subject to\\|subj to\\)[ \t\r\n]"
+         '(1 font-lock-keyword-face))
+   ;; `set', `param', `var' keywords use `font-lock-type-face'
+   (cons "^[ \t]*\\_<\\(set\\|param\\|var\\)\\_>" '(1 font-lock-type-face))
+   ;; `display' and `printf' keywords use `font-lock-builtin-face'
+   (cons "\\_<\\(display\\|printf\\)\\_>" '(1 font-lock-builtin-face))
+   ;; Iterated-operator, overriding face for `min' and `max'
+   (cons "\\_<\\(sum\\|prod\\|min\\|max\\|setof\\|forall\\|exists\\)\\_>\\([ \t]*{\\)"
+         '(1 font-lock-builtin-face))
+   ;; Functions
+   (cons (concat "\\_<\\("
+                 (mapconcat 'identity
+                            '(;; Numeric
+                              "abs" "atan" "card" "ceil" "cos"
+                              "exp" "floor" "gmtime" "length"
+                              "log" "log10" "max" "min" "round"
+                              "sin" "sqrt" "str2time" "trunc"
+                              "Irand224" "Uniform01" "Uniform"
+                              "Normal01" "Normal"
+                              ;; Symbolic
+                              "substr" "time2str")
+                            "\\|")
+                 "\\)\\_>")
+         font-lock-function-name-face)
+   ;; Variable name
+   (cons (concat "^[ \t]*\\("
+                 (mapconcat 'identity
+                            '("set" "param" "var" "maximize" "minimize" "table"
+                              "s\.t\." "subject to" "subj to")
+                            "\\|")
+                 "\\)[ \t]+\\([a-zA-Z0-9_]+\\)[ \t,;:{]")
+         '(2 font-lock-variable-name-face))
+   ;; Variable name can also start with itself and followed by `:'
+   (cons "^[ \t]*\\([a-zA-Z0-9_]+\\)[ \t]*:" '(1 font-lock-variable-name-face))))
 
 
 (defvar gmpl-mode-syntax-table
   (let ((syn-tab (make-syntax-table)))
-    ;; Word
-    (modify-syntax-entry ?_ "w" syn-tab)
+    ;; `_' is part of a symbol
+    (modify-syntax-entry ?_ "_" syn-tab)
+    ;; `-' is not part of a word
+    (modify-syntax-entry ?- "." syn-tab)
     ;; String literals
     (modify-syntax-entry ?' "\"" syn-tab)
     ;; Comments
@@ -58,7 +109,7 @@
   "Major mode for editing GMPL(MathProg) files."
   (interactive)
   (kill-all-local-variables)
-  (set (make-local-variable 'font-lock-defaults) '(gmpl-font-lock-keywords-reserved))
+  (set (make-local-variable 'font-lock-defaults) '(gmpl-font-lock-keywords))
   (set-syntax-table gmpl-mode-syntax-table)
   (setq major-mode 'gmpl-mode)
   (setq mode-name "gmpl")
