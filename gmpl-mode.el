@@ -24,96 +24,96 @@
 
 ;;; Code:
 
-(defvar gmpl-mode-hook nil)
+(eval-when-compile
+  (require 'regexp-opt))
 
 (defconst gmpl-font-lock-keywords
-  (list
-   ;; Reserved keywords
-   (cons (concat "\\_<\\("
-                 (mapconcat 'identity
-                            '("and" "else" "mod" "union"
-                              "by" "if" "not" "within"
-                              "cross" "in" "or"
-                              "diff" "inter" "symdiff"
-                              "div" "less" "then")
-                            "\\|")
-                 "\\)\\_>")
-         font-lock-keyword-face)
-   ;; Keywords in statement
-   (cons (concat "\\_<\\("
-                 (mapconcat 'identity
-                            '("maximize" "minimize"
-                              "dimen" "default" "integer" "binary" "symbolic"
-                              "for" "check" "table" "IN" "OUT")
-                            "\\|")
-                 "\\)\\_>")
-         '(1 font-lock-keyword-face))
-   ;; One keyword per line
-   (cons "^[ \t]*\\(data\\|end\\|solve\\)[ \t]*;"
-         '(1 font-lock-keyword-face))
-   ;; Subject to, not a word
-   (cons "^[ \t]*\\(s\.t\.\\|subject to\\|subj to\\)[ \t\r\n]"
-         '(1 font-lock-keyword-face))
-   ;; `set', `param', `var' keywords use `font-lock-type-face'
-   (cons "^[ \t]*\\_<\\(set\\|param\\|var\\)\\_>" '(1 font-lock-type-face))
-   ;; `display' and `printf' keywords use `font-lock-builtin-face'
-   (cons "\\_<\\(display\\|printf\\)\\_>" '(1 font-lock-builtin-face))
-   ;; Iterated-operator, overriding face for `min' and `max'
-   (cons "\\_<\\(sum\\|prod\\|min\\|max\\|setof\\|forall\\|exists\\)\\_>\\([ \t]*{\\)"
-         '(1 font-lock-builtin-face))
-   ;; Functions
-   (cons (concat "\\_<\\("
-                 (mapconcat 'identity
-                            '(;; Numeric
-                              "abs" "atan" "card" "ceil" "cos"
-                              "exp" "floor" "gmtime" "length"
-                              "log" "log10" "max" "min" "round"
-                              "sin" "sqrt" "str2time" "trunc"
-                              "Irand224" "Uniform01" "Uniform"
-                              "Normal01" "Normal"
-                              ;; Symbolic
-                              "substr" "time2str")
-                            "\\|")
-                 "\\)\\_>")
-         font-lock-function-name-face)
-   ;; Variable name
-   (cons (concat "^[ \t]*\\("
-                 (mapconcat 'identity
-                            '("set" "param" "var" "maximize" "minimize" "table"
-                              "s\.t\." "subject to" "subj to")
-                            "\\|")
-                 "\\)[ \t]+\\([a-zA-Z0-9_]+\\)[ \t,;:{]")
-         '(2 font-lock-variable-name-face))
-   ;; Variable name can also start with itself and followed by `:'
-   (cons "^[ \t]*\\([a-zA-Z0-9_]+\\)[ \t]*:" '(1 font-lock-variable-name-face))))
+  (eval-when-compile
+    `( ;; Reserved keywords
+      (,(regexp-opt '("and" "else" "mod" "union"
+                      "by" "if" "not" "within"
+                      "cross" "in" "or"
+                      "diff" "inter" "symdiff"
+                      "div" "less" "then")
+                    'symbols)
+       (1 font-lock-keyword-face))
+      ;; Keywords in statement
+      (,(regexp-opt
+         '("maximize" "minimize"
+           "dimen" "default" "integer" "binary" "symbolic"
+           "for" "check" "table" "IN" "OUT")
+         'symbols)
+       (1 font-lock-keyword-face))
+      ;; One keyword per line
+      (,(concat "^[ \t]*" (regexp-opt '("data" "end" "solve") t) "[ \t]*;")
+       (1 font-lock-keyword-face))
+      ;; Subject to, not a word
+      (,(concat "^[ \t]*" (regexp-opt '("s\.t\." "subject to" "subj to") t) "[ \t\r\n]")
+       (1 font-lock-keyword-face))
+      ;; `set', `param', `var' keywords use `font-lock-type-face'
+      (,(concat "^[ \t]*" (regexp-opt '("set" "param" "var") 'symbols))
+       (1 font-lock-type-face))
+      ;; `display' and `printf' keywords use `font-lock-builtin-face'
+      (,(regexp-opt '("display" "printf") 'symbols)
+       (1 font-lock-builtin-face))
+      ;; Iterated-operator, overriding face for `min' and `max'
+      (,(concat (regexp-opt '("sum" "prod" "min" "max" "setof" "forall" "exists")
+                            'symbols)
+                "\\([ \t]*{\\)")
+       (1 font-lock-builtin-face))
+      ;; Functions
+      (,(regexp-opt '( ;; Numeric
+                      "abs" "atan" "card" "ceil" "cos"
+                      "exp" "floor" "gmtime" "length"
+                      "log" "log10" "max" "min" "round"
+                      "sin" "sqrt" "str2time" "trunc"
+                      "Irand224" "Uniform01" "Uniform"
+                      "Normal01" "Normal"
+                      ;; Symbolic
+                      "substr" "time2str")
+                    'symbols)
+       (1 font-lock-function-name-face))
+      ;; Variable name
+      (,(concat "^[ \t]*"
+                (regexp-opt
+                 '("set" "param" "var" "maximize" "minimize" "table"
+                   "s\.t\." "subject to" "subj to")
+                 t)
+                "[ \t]+\\([a-zA-Z0-9_]+\\)[ \t,;:{]")
+       (2 font-lock-variable-name-face))
+      ;; Variable name can also start with itself and followed by `:'
+      ("^[ \t]*\\([a-zA-Z0-9_]+\\)[ \t]*:" (1 font-lock-variable-name-face))))
+  "Keywords for highlighting.")
 
+(defun gmpl-indent-line ()
+  "Line indent function of `gmpl-mode'."
+  (interactive)
+  (let ((pos 0))
+    (save-excursion
+      )))
 
 (defvar gmpl-mode-syntax-table
-  (let ((syn-tab (make-syntax-table)))
+  (let ((st (make-syntax-table)))
     ;; `_' is part of a symbol
-    (modify-syntax-entry ?_ "_" syn-tab)
+    (modify-syntax-entry ?_ "_" st)
     ;; `-' is not part of a word
-    (modify-syntax-entry ?- "." syn-tab)
+    (modify-syntax-entry ?- "." st)
     ;; String literals
-    (modify-syntax-entry ?' "\"" syn-tab)
+    (modify-syntax-entry ?' "\"" st)
     ;; Comments
-    (modify-syntax-entry ?# "<" syn-tab)
-    (modify-syntax-entry ?/ ". 14" syn-tab)
-    (modify-syntax-entry ?* ". 23b" syn-tab)
-    (modify-syntax-entry ?\n ">" syn-tab)
-    syn-tab)
+    (modify-syntax-entry ?# "<" st)
+    (modify-syntax-entry ?/ ". 14" st)
+    (modify-syntax-entry ?* ". 23b" st)
+    (modify-syntax-entry ?\n ">" st)
+    st)
   "Syntax table for gmpl-mode.")
 
-
-(defun gmpl-mode ()
+;;;###autoload
+(define-derived-mode gmpl-mode fundamental-mode "gmpl"
   "Major mode for editing GMPL(MathProg) files."
-  (interactive)
-  (kill-all-local-variables)
-  (set (make-local-variable 'font-lock-defaults) '(gmpl-font-lock-keywords))
-  (set-syntax-table gmpl-mode-syntax-table)
-  (setq major-mode 'gmpl-mode)
-  (setq mode-name "gmpl")
-  (run-hooks 'gmpl-mode-hook))
+  :syntax-table gmpl-mode-syntax-table
+  ;; font-lock
+  (set (make-local-variable 'font-lock-defaults) '(gmpl-font-lock-keywords)))
 
 (provide 'gmpl-mode)
 ;;; gmpl-mode.el ends here
