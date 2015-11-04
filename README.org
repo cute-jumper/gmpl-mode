@@ -21,3 +21,4 @@ Major mode for editing GMPL(MathProg) files.
 * *TODO*
   - Add some functions to interact with the =glpsol= command line tool.
   - Translate LaTeX equations to GMPL format and solve the problem directly.
+  - Add company-keywords support.

@@ -20,7 +20,61 @@
 
 ;;; Commentary:
 
-;;
+;;                              _____________
+
+;;                                GMPL-MODE
+
+;;                               Junpeng Qiu
+;;                              _____________
+
+
+;; Table of Contents
+;; _________________
+
+;; 1 Overview
+;; 2 Usage
+;; 3 *TODO*
+
+
+;; Major mode for editing GMPL(MathProg) files.
+
+
+;; 1 Overview
+;; ==========
+
+;;   GMPL is a modeling language to create mathematical programming models
+;;   which can be used by [GLPK].
+
+;;   Although GMPL is a subset of AMPL, the current Emacs major mode for
+;;   AMPL, which can be found at [https://github.com/dpo/ampl-mode],
+;;   doesn't work well with GMPL files. Here is the list of the reasons why
+;;   `gmpl-mode' works better compared to `ampl-mode' when editing GMPL
+;;   files:
+;;   1. Support single quoted string and C style comments.
+;;   2. Some keywords(such as `for', `end') are highlighted properly, and
+;;      it provides better hightlighting generally.
+;;   3. A usable indent function.
+
+
+;;   [GLPK] https://www.gnu.org/software/glpk/
+
+
+;; 2 Usage
+;; =======
+
+;;   Use `gmpl-mode' when editing files with the `.mod' extension:
+;;   ,----
+;;   | (add-to-list 'auto-mode-alist '("\\.mod\\'" . gmpl-mode))
+;;   `----
+
+
+;; 3 *TODO*
+;; ========
+
+;;   - Add some functions to interact with the `glpsol' command line tool.
+;;   - Translate LaTeX equations to GMPL format and solve the problem
+;;     directly.
+;;   - Add company-keywords support.
 
 ;;; Code:
 
