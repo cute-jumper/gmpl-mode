@@ -24,6 +24,8 @@
 
 ;;; Code:
 
+(require 'font-lock)
+
 (eval-when-compile
   (require 'regexp-opt))
 
