@@ -85,12 +85,25 @@
       ("^[ \t]*\\([a-zA-Z0-9_]+\\)[ \t]*:" (1 font-lock-variable-name-face))))
   "Keywords for highlighting.")
 
+(defvar gmpl-indent-width 4
+  "Indent width in `gmpl-mode'.")
+
 (defun gmpl-indent-line ()
   "Line indent function of `gmpl-mode'."
   (interactive)
-  (let ((pos 0))
+  (let ((savep (> (current-column) (current-indentation)))
+        (indent 0))
     (save-excursion
-      )))
+      (beginning-of-line)
+      (unless (bobp)
+        (forward-line -1)
+        (if (looking-at ".*\\(?:[:={]\\|\\_<then\\_>\\)[ \t]*$")
+            (setq indent (+ (current-indentation) tab-width))
+          (setq indent (current-indentation)))))
+    (if savep
+        (save-excursion
+          (indent-line-to indent))
+      (indent-line-to indent))))
 
 (defvar gmpl-mode-syntax-table
   (let ((st (make-syntax-table)))
@@ -113,7 +126,11 @@
   "Major mode for editing GMPL(MathProg) files."
   :syntax-table gmpl-mode-syntax-table
   ;; font-lock
-  (set (make-local-variable 'font-lock-defaults) '(gmpl-font-lock-keywords)))
+  (set (make-local-variable 'font-lock-defaults) '(gmpl-font-lock-keywords))
+  ;; indent
+  (set (make-local-variable 'tab-width) gmpl-indent-width)
+  (set (make-local-variable 'indent-tabs-mode) nil)
+  (set (make-local-variable 'indent-line-function) 'gmpl-indent-line))
 
 (provide 'gmpl-mode)
 ;;; gmpl-mode.el ends here
