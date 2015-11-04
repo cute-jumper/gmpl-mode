@@ -92,14 +92,20 @@
   "Line indent function of `gmpl-mode'."
   (interactive)
   (let ((savep (> (current-column) (current-indentation)))
-        (indent 0))
+        (indent 0)
+        end-brace-p)
     (save-excursion
       (beginning-of-line)
       (unless (bobp)
+        (setq end-brace-p (looking-at-p "[ \t]*}"))
         (forward-line -1)
-        (if (looking-at ".*\\(?:[:={]\\|\\_<then\\_>\\)[ \t]*$")
-            (setq indent (+ (current-indentation) tab-width))
-          (setq indent (current-indentation)))))
+        (if (looking-at-p ".*\\(?:[:={]\\|\\_<then\\_>\\)[ \t]*$")
+            (if end-brace-p
+                (setq indent (current-indentation))
+              (setq indent (+ (current-indentation) tab-width)))
+          (if end-brace-p
+              (setq indent (max (- (current-indentation) tab-width) 0))
+            (setq indent (current-indentation))))))
     (if savep
         (save-excursion
           (indent-line-to indent))
