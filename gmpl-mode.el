@@ -62,6 +62,12 @@
 ;; 2 Usage
 ;; =======
 
+;;   First, add the `load-path' and load the file:
+;;   ,----
+;;   | (add-to-list 'load-path "/path/to/gmpl-mode.el")
+;;   | (require 'gmpl-mode)
+;;   `----
+
 ;;   Use `gmpl-mode' when editing files with the `.mod' extension:
 ;;   ,----
 ;;   | (add-to-list 'auto-mode-alist '("\\.mod\\'" . gmpl-mode))
