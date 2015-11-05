@@ -180,7 +180,7 @@
   "Syntax table for gmpl-mode.")
 
 ;;;###autoload
-(define-derived-mode gmpl-mode fundamental-mode "gmpl"
+(define-derived-mode gmpl-mode fundamental-mode "GMPL"
   "Major mode for editing GMPL(MathProg) files."
   :syntax-table gmpl-mode-syntax-table
   ;; font-lock
