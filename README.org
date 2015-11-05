@@ -1,6 +1,8 @@
 #+TITLE: gmpl-mode
 Major mode for editing GMPL(MathProg) files.
 
+If you are writing GMPL and using GLPK and to solve problems, try this out!
+
 * Overview
   GMPL is a modeling language to create mathematical programming models which
   can be used by [[https://www.gnu.org/software/glpk/][GLPK]].

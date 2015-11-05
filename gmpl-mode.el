@@ -38,6 +38,7 @@
 
 ;; Major mode for editing GMPL(MathProg) files.
 
+;; If you are writing GMPL and using GLPK and to solve problems, try this out!
 
 ;; 1 Overview
 ;; ==========
