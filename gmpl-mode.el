@@ -144,20 +144,38 @@
 (defvar gmpl-indent-width 4
   "Indent width in `gmpl-mode'.")
 
+(defun gmpl--compute-indent ()
+  "Compute the indentation for current line."
+  (save-excursion
+    (beginning-of-line)
+    (if (bobp)
+        0
+      (if (cond ((looking-at-p "[ \t]*}")
+                 (backward-up-list) t)
+                ((looking-at-p "[ \t]*\\_<else\\_>")
+                 (re-search-backward "\\_<if\\_>" nil t) t))
+          (current-indentation)
+        (forward-line -1)
+        (cond ((looking-at-p ".*;")
+               (unless (or (bobp)
+                           (save-excursion (forward-line -1) (looking-at-p ".*[;{}][ \t]*$")))
+                 (let ((pos (current-indentation)))
+                   (while (and (>= (current-indentation) pos) (not (bobp)))
+                     (forward-line -1))))
+               (current-indentation))
+              ((looking-at-p ".*\\(?:[:={]\\|\\_<then\\_>\\|\\_<else\\_>\\)[ \t]*$")
+               (+ (current-indentation) tab-width))
+              ((looking-at-p ".*:=")
+               (search-forward ":=" nil t)
+               (skip-chars-forward " \t")
+               (current-column))
+              (t (current-indentation)))))))
+
 (defun gmpl-indent-line ()
   "Line indent function of `gmpl-mode'."
   (interactive)
   (let ((savep (> (current-column) (current-indentation)))
-        (indent (save-excursion
-                  (beginning-of-line)
-                  (unless (bobp)
-                    (if (looking-at-p "[ \t]*}")
-                        (progn (backward-up-list)
-                               (current-indentation))
-                      (forward-line -1)
-                      (if (looking-at-p ".*\\(?:[:={]\\|\\_<then\\_>\\)[ \t]*$")
-                          (+ (current-indentation) tab-width)
-                        (current-indentation)))))))
+        (indent (gmpl--compute-indent)))
     (if savep
         (save-excursion
           (indent-line-to indent))
