@@ -22,6 +22,11 @@ Major mode for editing GMPL(MathProg) files.
   Use =gmpl-mode= when editing files with the =.mod= extension:
   : (add-to-list 'auto-mode-alist '("\\.mod\\'" . gmpl-mode))
 
+* Screenshot
+  Here is the screenshot using Emacs 24's builtin theme =tsdh-dark=:
+
+  [[./screenshot.png]]
+
 * *TODO*
   - Add some functions to interact with the =glpsol= command line tool.
   - Translate LaTeX equations to GMPL format and solve the problem directly.
