@@ -204,18 +204,9 @@
     st)
   "Syntax table for gmpl-mode.")
 
-;;;###autoload
-(define-derived-mode gmpl-mode fundamental-mode "GMPL"
-  "Major mode for editing GMPL(MathProg) files."
-  :syntax-table gmpl-mode-syntax-table
-  ;; font-lock
-  (set 'font-lock-defaults '(gmpl-font-lock-keywords))
-  ;; indent
-  (set (make-local-variable 'tab-width) gmpl-indent-width)
-  (set (make-local-variable 'indent-tabs-mode) nil)
-  (set 'indent-line-function 'gmpl-indent-line)
-  ;; key bindings
-  (define-key gmpl-mode-map (kbd "C-c C-c") 'gmpl-glpsol-solve-dwim))
+;; ------------------------------------------- ;;
+;; Variables and functions related to `gplsol' ;;
+;; ------------------------------------------- ;;
 
 (defvar gmpl--glpsol-input-file-name (make-temp-file "gmpl-glpsol-input"))
 (defvar gmpl--glpsol-output-file-name (make-temp-file "gmpl-glpsol-output"))
@@ -270,29 +261,30 @@ exact location of `glpsol'.")
 (defun gmpl--send-region-to-glpsol (beg end)
   "Send the region from BEG to END to `glpsol'."
   (write-region beg end gmpl--glpsol-input-file-name)
-  (with-current-buffer (get-buffer-create gmpl--glpsol-temp-buffer-name)
-    (special-mode)
-    (let ((inhibit-read-only t))
-      (erase-buffer)
-      (insert (gmpl--generate-separator gmpl--separator-width
-                                        gmpl--separator-char
-                                        "Terminal Output"))
-      (newline)
-      (insert (shell-command-to-string
-               (concat gmpl-glpsol-program " -m " gmpl--glpsol-input-file-name
-                       " -o " gmpl--glpsol-output-file-name
-                       " --ranges " gmpl--glpsol-ranges-file-name
-                       " " gmpl-glpsol-extra-args)))
-      (newline)
-      (gmpl--maybe-insert-file-with-title gmpl--glpsol-output-file-name "Solution Details")
-      (newline)
-      (gmpl--maybe-insert-file-with-title gmpl--glpsol-ranges-file-name "Sensitivity Analysis")
-      (goto-char (point-min))
-      (font-lock-add-keywords nil gmpl--glpsol-buffer-font-lock-keywords)
-      (if (fboundp 'font-lock-ensure)
-          (font-lock-ensure)
-        (with-no-warnings
-          (font-lock-fontify-buffer))))))
+  (let ((extra-args gmpl-glpsol-extra-args))
+    (with-current-buffer (get-buffer-create gmpl--glpsol-temp-buffer-name)
+      (special-mode)
+      (let ((inhibit-read-only t))
+        (erase-buffer)
+        (insert (gmpl--generate-separator gmpl--separator-width
+                                          gmpl--separator-char
+                                          "Terminal Output"))
+        (newline)
+        (insert (shell-command-to-string
+                 (concat gmpl-glpsol-program " -m " gmpl--glpsol-input-file-name
+                         " -o " gmpl--glpsol-output-file-name
+                         " --ranges " gmpl--glpsol-ranges-file-name
+                         " " extra-args)))
+        (newline)
+        (gmpl--maybe-insert-file-with-title gmpl--glpsol-output-file-name "Solution Details")
+        (newline)
+        (gmpl--maybe-insert-file-with-title gmpl--glpsol-ranges-file-name "Sensitivity Analysis")
+        (goto-char (point-min))
+        (font-lock-add-keywords nil gmpl--glpsol-buffer-font-lock-keywords)
+        (if (fboundp 'font-lock-ensure)
+            (font-lock-ensure)
+          (with-no-warnings
+            (font-lock-fontify-buffer)))))))
 
 (defun gmpl-glpsol-solve-dwim ()
   "Solve the problem using `glpsol'.
