@@ -33,12 +33,16 @@
 
 ;; 1 Overview
 ;; 2 Usage
+;; .. 2.1 Using the Major Mode
+;; .. 2.2 Using `gmpl-glpsol-solve-dwim'
 ;; 3 *TODO*
 
 
 ;; Major mode for editing GMPL(MathProg) files.
 
-;; If you are writing GMPL and using GLPK and to solve problems, try this out!
+;; If you are writing GMPL and using GLPK and to solve problems, try this
+;; out!
+
 
 ;; 1 Overview
 ;; ==========
@@ -55,6 +59,7 @@
 ;;   2. Some keywords(such as `for', `end') are highlighted properly, and
 ;;      it provides better hightlighting generally.
 ;;   3. A usable indent function.
+;;   4. Some useful commands to interact with `glpsol' directly.
 
 
 ;;   [GLPK] https://www.gnu.org/software/glpk/
@@ -62,6 +67,9 @@
 
 ;; 2 Usage
 ;; =======
+
+;; 2.1 Using the Major Mode
+;; ~~~~~~~~~~~~~~~~~~~~~~~~
 
 ;;   First, add the `load-path' and load the file:
 ;;   ,----
@@ -75,15 +83,58 @@
 ;;   `----
 
 
+;; 2.2 Using `gmpl-glpsol-solve-dwim'
+;; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+;;   When in `gmpl-mode', you can use C-c C-c to invoke
+;;   `gmpl-glpsol-solve-dwim'. This command will use the content of the
+;;   current buffer(or the region if the region is active) as the input for
+;;   the `glpsol' command, and then display the results in a separate
+;;   buffer with some colors added. The following command is basically what
+;;   `gmpl-glpsol-solve-dwim' does(Yes, `--ranges' only makes sense for
+;;   simplex):
+;;   ,----
+;;   | glpsol -m input-file -o output-file --ranges sensitivity-file
+;;   `----
+
+;;   You can set the variable `gmpl-glpsol-program' to the exact location
+;;   of your `glpsol' command if it is not in the PATH or has some other
+;;   magic name, and if you want extra arguments for `glpsol' command, you
+;;   can set the `gmpl-glpsol-extra-args' variable, which is always
+;;   buffer-local.
+
+;;   For example, if you want to set the `--interior' option for `glpsol',
+;;   you can use `M-x add-file-local-variable-prop-line' or add the
+;;   following lines at the end of the buffer to add file local variables:
+;;   ,----
+;;   | # Local Variables:
+;;   | # gmpl-glpsol-extra-args: "--interior"
+;;   | # End:
+;;   `----
+
+;;   Revert the buffer and apply the new value of the variable, then when
+;;   we invoke `gmpl-glpsol-solve-dwim', it basically will use the
+;;   following command:
+;;   ,----
+;;   | glpsol -m input-file -o output-file --ranges sensitivity-file --interior
+;;   `----
+
+;;   You can set the value of `gmpl-glpsol-extra-args' per buffer so that
+;;   you can have different commnd line arguments for different problems.
+
+
 ;; 3 *TODO*
 ;; ========
 
-;;   - Add some functions to interact with the `glpsol' command line tool.
 ;;   - Translate LaTeX equations to GMPL format and solve the problem
 ;;     directly.
 ;;   - Add company-keywords support.
 
 ;;; Code:
+
+;; ----------------------- ;;
+;; Syntax and highlighting ;;
+;; ----------------------- ;;
 
 (require 'font-lock)
 
@@ -222,6 +273,7 @@ exact location of `glpsol'.")
 
 (defvar gmpl-glpsol-extra-args nil
   "Extra arguments passed to `glpsol' command line tool.")
+(make-variable-buffer-local 'gmpl-glpsol-extra-args)
 
 (defvar gmpl--glpsol-buffer-font-lock-keywords
   `((,(concat "^" (regexp-opt '("Problem" "Rows" "Columns"
@@ -298,6 +350,19 @@ buffer is used."
     (gmpl--send-region-to-glpsol (point-min) (point-max)))
   (unless (get-buffer-window gmpl--glpsol-temp-buffer-name)
     (display-buffer gmpl--glpsol-temp-buffer-name)))
+
+;;;###autoload
+(define-derived-mode gmpl-mode fundamental-mode "GMPL"
+  "Major mode for editing GMPL(MathProg) files."
+  :syntax-table gmpl-mode-syntax-table
+  ;; font-lock
+  (set 'font-lock-defaults '(gmpl-font-lock-keywords))
+  ;; indent
+  (set (make-local-variable 'tab-width) gmpl-indent-width)
+  (set (make-local-variable 'indent-tabs-mode) nil)
+  (set 'indent-line-function 'gmpl-indent-line)
+  ;; key bindings
+  (define-key gmpl-mode-map (kbd "C-c C-c") 'gmpl-glpsol-solve-dwim))
 
 (provide 'gmpl-mode)
 ;;; gmpl-mode.el ends here

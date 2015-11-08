@@ -15,14 +15,43 @@ If you are writing GMPL and using GLPK and to solve problems, try this out!
   2. Some keywords(such as =for=, =end=) are highlighted properly, and it
      provides better hightlighting generally.
   3. A usable indent function.
+  4. Some useful commands to interact with =glpsol= directly.
 
 * Usage
+** Using the Major Mode
   First, add the =load-path= and load the file:
   : (add-to-list 'load-path "/path/to/gmpl-mode.el")
   : (require 'gmpl-mode)
 
   Use =gmpl-mode= when editing files with the =.mod= extension:
   : (add-to-list 'auto-mode-alist '("\\.mod\\'" . gmpl-mode))
+** Using =gmpl-glpsol-solve-dwim=
+  When in =gmpl-mode=, you can use @@html:<kbd>@@C-c C-c@@html:</kbd>@@ to
+  invoke =gmpl-glpsol-solve-dwim=. This command will use the content of the
+  current buffer(or the region if the region is active) as the input for the
+  =glpsol= command, and then display the results in a separate buffer with some
+  colors added. The following command is basically what =gmpl-glpsol-solve-dwim=
+  does(Yes, =--ranges= only makes sense for simplex):
+  : glpsol -m input-file -o output-file --ranges sensitivity-file
+
+  You can set the variable =gmpl-glpsol-program= to the exact location of your
+  =glpsol= command if it is not in the PATH or has some other magic name, and if
+  you want extra arguments for =glpsol= command, you can set the
+  =gmpl-glpsol-extra-args= variable, which is always buffer-local.
+
+  For example, if you want to set the =--interior= option for =glpsol=, you can
+  use =M-x add-file-local-variable-prop-line= or add the following lines at the
+  end of the buffer to add file local variables:
+  : # Local Variables:
+  : # gmpl-glpsol-extra-args: "--interior"
+  : # End:
+
+  Revert the buffer and apply the new value of the variable, then when we invoke
+  =gmpl-glpsol-solve-dwim=, it basically will use the following command:
+  : glpsol -m input-file -o output-file --ranges sensitivity-file --interior
+
+  You can set the value of =gmpl-glpsol-extra-args= per buffer so that you can
+  have different commnd line arguments for different problems.
 
 * Screenshot
   Here is the screenshot using Emacs 24's builtin theme =tsdh-dark=:
@@ -30,6 +59,5 @@ If you are writing GMPL and using GLPK and to solve problems, try this out!
   [[./screenshot.png]]
 
 * *TODO*
-  - Add some functions to interact with the =glpsol= command line tool.
   - Translate LaTeX equations to GMPL format and solve the problem directly.
   - Add company-keywords support.
