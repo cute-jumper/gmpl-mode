@@ -297,6 +297,8 @@ exact location of `glpsol'.")
 If a region is selected, use the region.  Otherwise, the whole
 buffer is used."
   (interactive)
+  (when (executable-find gmpl-glpsol-program)
+    (error "No `glpsol' program found! Make sure you have `glpsol' available in your system"))
   (if (use-region-p)
       (gmpl--send-region-to-glpsol (region-beginning) (region-end))
     (gmpl--send-region-to-glpsol (point-min) (point-max)))
