@@ -209,11 +209,11 @@
   "Major mode for editing GMPL(MathProg) files."
   :syntax-table gmpl-mode-syntax-table
   ;; font-lock
-  (set (make-local-variable 'font-lock-defaults) '(gmpl-font-lock-keywords))
+  (set 'font-lock-defaults '(gmpl-font-lock-keywords))
   ;; indent
   (set (make-local-variable 'tab-width) gmpl-indent-width)
   (set (make-local-variable 'indent-tabs-mode) nil)
-  (set (make-local-variable 'indent-line-function) 'gmpl-indent-line))
+  (set 'indent-line-function 'gmpl-indent-line))
 
 (defvar gmpl--glpsol-input-file-name (make-temp-file "gmpl-glpsol-input"))
 (defvar gmpl--glpsol-output-file-name (make-temp-file "gmpl-glpsol-output"))
