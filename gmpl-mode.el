@@ -213,7 +213,9 @@
   ;; indent
   (set (make-local-variable 'tab-width) gmpl-indent-width)
   (set (make-local-variable 'indent-tabs-mode) nil)
-  (set 'indent-line-function 'gmpl-indent-line))
+  (set 'indent-line-function 'gmpl-indent-line)
+  ;; key bindings
+  (define-key gmpl-mode-map (kbd "C-c C-c") 'gmpl-glpsol-solve-dwim))
 
 (defvar gmpl--glpsol-input-file-name (make-temp-file "gmpl-glpsol-input"))
 (defvar gmpl--glpsol-output-file-name (make-temp-file "gmpl-glpsol-output"))
@@ -292,12 +294,12 @@ exact location of `glpsol'.")
         (with-no-warnings
           (font-lock-fontify-buffer))))))
 
-(defun gmpl-solve-dwim ()
+(defun gmpl-glpsol-solve-dwim ()
   "Solve the problem using `glpsol'.
 If a region is selected, use the region.  Otherwise, the whole
 buffer is used."
   (interactive)
-  (when (executable-find gmpl-glpsol-program)
+  (unless (executable-find gmpl-glpsol-program)
     (error "No `glpsol' program found! Make sure you have `glpsol' available in your system"))
   (if (use-region-p)
       (gmpl--send-region-to-glpsol (region-beginning) (region-end))
