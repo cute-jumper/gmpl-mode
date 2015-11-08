@@ -215,5 +215,93 @@
   (set (make-local-variable 'indent-tabs-mode) nil)
   (set (make-local-variable 'indent-line-function) 'gmpl-indent-line))
 
+(defvar gmpl--glpsol-input-file-name (make-temp-file "gmpl-glpsol-input"))
+(defvar gmpl--glpsol-output-file-name (make-temp-file "gmpl-glpsol-output"))
+(defvar gmpl--glpsol-ranges-file-name (make-temp-file "gmpl-glpsol-ranges"))
+(defvar gmpl--glpsol-temp-buffer-name "*glpsol*")
+(defvar gmpl--separator-width 80)
+(defvar gmpl--separator-char ?=)
+
+(defvar gmpl-glpsol-program "glpsol"
+  "The program name of `glpsol'.
+If `glpsol' is not in your PATH, you may need to specify the
+exact location of `glpsol'.")
+
+(defvar gmpl-glpsol-extra-args nil
+  "Extra arguments passed to `glpsol' command line tool.")
+
+(defvar gmpl--glpsol-buffer-font-lock-keywords
+  `((,(concat "^" (regexp-opt '("Problem" "Rows" "Columns"
+                                "Non-zeros" "Status" "Objective"
+                                "Time used" "Memory used") t)
+              ":")
+     1 font-lock-type-face)
+    (,(format "^%c.*%c+$\\|^End of .*$" gmpl--separator-char gmpl--separator-char)
+     0 font-lock-comment-face)
+    ("OPTIMAL LP SOLUTION FOUND" 0 font-lock-keyword-face)
+    ("PROBLEM HAS NO PRIMAL FEASIBLE SOLUTION" 0 font-lock-warning-face)
+    (".*\\<GLPK\\>.*" 0 font-lock-builtin-face)))
+
+(defun gmpl--generate-separator (width fill-char text)
+  "Generate separator string specified by WIDTH, FILL-CHAR and TEXT."
+  (setq text (format " %s " text))
+  (when (> (length text) width)
+    (error "The length of the text is larger than the specified width"))
+  (let* ((fill-char-width (- width (length text)))
+         (left-width (/ fill-char-width  2))
+         (right-width (- fill-char-width left-width)))
+    (format "%s%s%s"
+            (make-string left-width fill-char)
+            text
+            (make-string right-width fill-char))))
+
+(defun gmpl--maybe-insert-file-with-title (filename title)
+  (when (file-exists-p filename)
+    (insert (gmpl--generate-separator gmpl--separator-width
+                                      gmpl--separator-char
+                                      title))
+    (newline)
+    (insert-file-contents filename)
+    (goto-char (point-max))
+    (newline)))
+
+(defun gmpl--send-region-to-glpsol (beg end)
+  "Send the region from BEG to END to `glpsol'."
+  (write-region beg end gmpl--glpsol-input-file-name)
+  (with-current-buffer (get-buffer-create gmpl--glpsol-temp-buffer-name)
+    (special-mode)
+    (let ((inhibit-read-only t))
+      (erase-buffer)
+      (insert (gmpl--generate-separator gmpl--separator-width
+                                        gmpl--separator-char
+                                        "Terminal Output"))
+      (newline)
+      (insert (shell-command-to-string
+               (concat gmpl-glpsol-program " -m " gmpl--glpsol-input-file-name
+                       " -o " gmpl--glpsol-output-file-name
+                       " --ranges " gmpl--glpsol-ranges-file-name
+                       " " gmpl-glpsol-extra-args)))
+      (newline)
+      (gmpl--maybe-insert-file-with-title gmpl--glpsol-output-file-name "Solution Details")
+      (newline)
+      (gmpl--maybe-insert-file-with-title gmpl--glpsol-ranges-file-name "Sensitivity Analysis")
+      (goto-char (point-min))
+      (font-lock-add-keywords nil gmpl--glpsol-buffer-font-lock-keywords)
+      (if (fboundp 'font-lock-ensure)
+          (font-lock-ensure)
+        (with-no-warnings
+          (font-lock-fontify-buffer))))))
+
+(defun gmpl-solve-dwim ()
+  "Solve the problem using `glpsol'.
+If a region is selected, use the region.  Otherwise, the whole
+buffer is used."
+  (interactive)
+  (if (use-region-p)
+      (gmpl--send-region-to-glpsol (region-beginning) (region-end))
+    (gmpl--send-region-to-glpsol (point-min) (point-max)))
+  (unless (get-buffer-window gmpl--glpsol-temp-buffer-name)
+    (display-buffer gmpl--glpsol-temp-buffer-name)))
+
 (provide 'gmpl-mode)
 ;;; gmpl-mode.el ends here
