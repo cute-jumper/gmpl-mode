@@ -337,6 +337,7 @@ exact location of `glpsol'.")
           (with-no-warnings
             (font-lock-fontify-buffer)))))))
 
+;;;###autoload
 (defun gmpl-glpsol-solve-dwim ()
   "Solve the problem using `glpsol'.
 If a region is selected, use the region.  Otherwise, the whole
@@ -351,6 +352,16 @@ buffer is used."
     (display-buffer gmpl--glpsol-temp-buffer-name)))
 
 ;;;###autoload
+(defun gmpl-glpsol-set-extra-args (extra-args)
+  "Set extra arguments for `glpsol' using EXTRA-ARGS."
+  (interactive
+   (list
+    (read-string
+     (concat "Extra args for `glpsol'(current value is \"" gmpl-glpsol-extra-args "\"): "))))
+  (add-file-local-variable 'gmpl-glpsol-extra-args
+                           (setq gmpl-glpsol-extra-args extra-args)))
+
+;;;###autoload
 (define-derived-mode gmpl-mode fundamental-mode "GMPL"
   "Major mode for editing GMPL(MathProg) files."
   :syntax-table gmpl-mode-syntax-table
@@ -361,7 +372,8 @@ buffer is used."
   (set (make-local-variable 'indent-tabs-mode) nil)
   (set 'indent-line-function 'gmpl-indent-line)
   ;; key bindings
-  (define-key gmpl-mode-map (kbd "C-c C-c") 'gmpl-glpsol-solve-dwim)
+  (define-key gmpl-mode-map (kbd "C-c C-c") #'gmpl-glpsol-solve-dwim)
+  (define-key gmpl-mode-map (kbd "C-c C-a") #'gmpl-glpsol-set-extra-args)
   ;; local variables
   (make-local-variable 'gmpl-glpsol-extra-args))
 
