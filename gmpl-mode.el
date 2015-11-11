@@ -99,28 +99,32 @@
 
 ;;   You can set the variable `gmpl-glpsol-program' to the exact location
 ;;   of your `glpsol' command if it is not in the PATH or has some other
-;;   magic name, and if you want extra arguments for `glpsol' command, you
-;;   can set the `gmpl-glpsol-extra-args' variable, which is always
-;;   buffer-local.
+;;   magic name.
+
+;;   It is also possible that you can pass extra arguments to `glpsol'
+;;   command. The buffer-local variable, `gmpl-glpsol-extra-args', controls
+;;   the value of extra arguments. To set extra arguments for `glpsol', use
+;;   `M-x gmpl-glpsol-set-extra-args' (which is bound to C-c C-a).
 
 ;;   For example, if you want to set the `--interior' option for `glpsol',
-;;   you can use `M-x add-file-local-variable-prop-line' or add the
-;;   following lines at the end of the buffer to add file local variables:
+;;   you can use `M-x gmpl-glpsol-set-extra-args' or C-c C-a. This command
+;;   will set the value of `gmpl-glpsol-extra-args' and add the following
+;;   lines at the end of the file:
 ;;   ,----
 ;;   | # Local Variables:
 ;;   | # gmpl-glpsol-extra-args: "--interior"
 ;;   | # End:
 ;;   `----
 
-;;   Revert the buffer and apply the new value of the variable, then when
-;;   we invoke `gmpl-glpsol-solve-dwim', it basically will use the
-;;   following command:
+;;   After that, when we invoke `gmpl-glpsol-solve-dwim', essentially
+;;   following command will be used:
 ;;   ,----
 ;;   | glpsol -m input-file -o output-file --ranges sensitivity-file --interior
 ;;   `----
 
-;;   You can set the value of `gmpl-glpsol-extra-args' per buffer so that
-;;   you can have different commnd line arguments for different problems.
+;;   You can use `gmpl-glpsol-set-extra-args' to set the value of
+;;   `gmpl-glpsol-extra-args' in different buffers so that you can have
+;;   different commnd line arguments for different problems.
 
 
 ;; 3 *TODO*
