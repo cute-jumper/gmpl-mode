@@ -273,7 +273,6 @@ exact location of `glpsol'.")
 
 (defvar gmpl-glpsol-extra-args nil
   "Extra arguments passed to `glpsol' command line tool.")
-(make-variable-buffer-local 'gmpl-glpsol-extra-args)
 
 (defvar gmpl--glpsol-buffer-font-lock-keywords
   `((,(concat "^" (regexp-opt '("Problem" "Rows" "Columns"
@@ -362,7 +361,9 @@ buffer is used."
   (set (make-local-variable 'indent-tabs-mode) nil)
   (set 'indent-line-function 'gmpl-indent-line)
   ;; key bindings
-  (define-key gmpl-mode-map (kbd "C-c C-c") 'gmpl-glpsol-solve-dwim))
+  (define-key gmpl-mode-map (kbd "C-c C-c") 'gmpl-glpsol-solve-dwim)
+  ;; local variables
+  (make-local-variable 'gmpl-glpsol-extra-args))
 
 (provide 'gmpl-mode)
 ;;; gmpl-mode.el ends here
