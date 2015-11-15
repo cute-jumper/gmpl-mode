@@ -375,6 +375,8 @@ buffer is used."
   (set (make-local-variable 'tab-width) gmpl-indent-width)
   (set (make-local-variable 'indent-tabs-mode) nil)
   (set 'indent-line-function 'gmpl-indent-line)
+  ;; comment
+  (setq comment-start "#")
   ;; key bindings
   (define-key gmpl-mode-map (kbd "C-c C-c") #'gmpl-glpsol-solve-dwim)
   (define-key gmpl-mode-map (kbd "C-c C-a") #'gmpl-glpsol-set-extra-args)
