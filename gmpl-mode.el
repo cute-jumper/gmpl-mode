@@ -3,6 +3,7 @@
 ;; Copyright (C) 2015  Junpeng Qiu
 
 ;; Author: Junpeng Qiu <qjpchmail@gmail.com>
+;; Package-Requires: ((emacs "24"))
 ;; Keywords: extensions
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -366,7 +367,7 @@ buffer is used."
                            (setq gmpl-glpsol-extra-args extra-args)))
 
 ;;;###autoload
-(define-derived-mode gmpl-mode fundamental-mode "GMPL"
+(define-derived-mode gmpl-mode prog-mode "GMPL"
   "Major mode for editing GMPL(MathProg) files."
   :syntax-table gmpl-mode-syntax-table
   ;; font-lock
