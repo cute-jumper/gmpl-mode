@@ -1,5 +1,8 @@
 #+TITLE: gmpl-mode
-Major mode for editing GMPL(MathProg) files.
+[[https://melpa.org/#/gmpl-mode][file:https://melpa.org/packages/gmpl-mode-badge.svg]]
+[[https://stable.melpa.org/#/gmpl-mode][file:https://stable.melpa.org/packages/gmpl-mode-badge.svg]]
+
+Major mode for editing GMPL (MathProg) files.
 
 If you are writing GMPL and using GLPK and to solve problems, try this out!
 
