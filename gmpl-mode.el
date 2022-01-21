@@ -359,7 +359,7 @@ exact location of `glpsol'.")
                     "--ranges" gmpl--glpsol-ranges-file-name))
         proc)
     (when gmpl-glpsol-extra-args
-      (setq args (cons gmpl-glpsol-extra-args args)))
+      (setq args (append args (split-string gmpl-glpsol-extra-args))))
     (gmpl--glpsol-output-setup)
     (set-process-filter
      (setq proc (apply #'start-process gmpl--glpsol-process-name
